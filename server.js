@@ -2,9 +2,8 @@ const mongoose = require('mongoose');
 
 const app = require('./app')
 
-// const DB_HOST = 'mongodb+srv://Oleg:XEBd7NEhKAnkCREp@cluster0.3z6iy0y.mongodb.net/books_reader?retryWrites=true&w=majority'
 
-const {DB_HOST} = process.env
+const {DB_HOST} = process.env;
 
 mongoose.set('strictQuery', true);
 
@@ -15,6 +14,5 @@ mongoose.connect(DB_HOST).then(app.listen(3000, () => {
   process.exit(1);
 })
 
-console.log(process.env);
 
 
