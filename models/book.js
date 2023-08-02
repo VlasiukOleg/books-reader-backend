@@ -26,6 +26,14 @@ const bookSchema = new Schema({
         required: true,
 
     }
+    // !Другий об'єкт в схемі прибирає версію та встановлює дату додавання та оновлення
+}, {versionKey: false, timestamps: true})  
+
+
+// !Щоб статус викидав при помилці
+bookSchema.post('save', (error, data, next) => {
+    error.status = 400;
+    next();
 })
 
 
