@@ -22,7 +22,10 @@ const addSchema = Joi.object({
 // ! Якщо напишемо так find({}, 'title genre')   то виведе тільки ці поля, якщо перед полем поставити "-", то їх не потрібно повертати
  const getAll =  async (req, res, next) => {
         try {
-        const allContacts = await Book.find();
+        const {_id: owner} = req.user;
+        const {page = 1, limit=10} = req.query;
+        const skip = (page-1) * limit;
+        const allContacts = await Book.find({owner}, '-createdAt',  {skip, limit}).populate("owner", 'name email');
         res.json(allContacts);
         } catch (error) {
           next(error);
@@ -34,6 +37,7 @@ const addSchema = Joi.object({
  const getById = async (req, res, next) => {
     try {
       const {contactId} = req.params;
+      console.log(req.user);
       // const contactByID = await Book.findOne({_id: id});
       const contactByID = await Book.findById(contactId);
       if (!contactByID) {
@@ -52,7 +56,8 @@ const addSchema = Joi.object({
       if (error) {
         throw HttpError(400, error.message);
       }
-      const newContact = await Book.create(req.body);
+      const {_id: owner} = req.user;
+      const newContact = await Book.create({...req.body, owner});
       res.status(201).json(newContact)
     } catch (error) {
       next(error);

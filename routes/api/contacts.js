@@ -3,18 +3,18 @@ const express = require('express')
 
 const ctrl = require('../../controllers/books')
 
-const isValidId = require('../../middleware')
+const {isValidId, authenticate} = require('../../middleware')
 
 
 
 const router = express.Router()
 
 
-router.get('/', ctrl.getAll)
+router.get('/',  authenticate, ctrl.getAll)
 
-router.get('/:contactId', isValidId, ctrl.getById )
+router.get('/:contactId',  authenticate, isValidId, ctrl.getById )
 
-router.post('/', ctrl.add)
+router.post('/', authenticate, ctrl.add)
 
 router.put('/:contactId', isValidId, ctrl.update)
 

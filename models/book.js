@@ -25,6 +25,13 @@ const bookSchema = new Schema({
         match: /^\d{2}-\d{2}-\d{4}$/,
         required: true,
 
+    },
+    //! Тут зюерігається id яку генерує MongoDB
+    owner: {
+        type: Schema.Types.ObjectId,
+        // !Назва колекції з якої буде це id
+        ref: 'user',
+        required: true,
     }
     // !Другий об'єкт в схемі прибирає версію та встановлює дату додавання та оновлення
 }, {versionKey: false, timestamps: true})  
