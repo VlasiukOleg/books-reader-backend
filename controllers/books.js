@@ -1,4 +1,6 @@
 const Joi = require('joi');
+const fs = require('fs/promises');
+const path = require('path');
 
 const Book = require('../models/book')
 
@@ -37,7 +39,6 @@ const addSchema = Joi.object({
  const getById = async (req, res, next) => {
     try {
       const {contactId} = req.params;
-      console.log(req.user);
       // const contactByID = await Book.findOne({_id: id});
       const contactByID = await Book.findById(contactId);
       if (!contactByID) {
@@ -50,14 +51,26 @@ const addSchema = Joi.object({
     } 
   }
 
+  const booksDir = path.join(__dirname, '../', 'public', 'books')
+  console.log(booksDir);
   const add = async (req, res, next) => {
     try {
       const {error} = addSchema.validate(req.body);
       if (error) {
         throw HttpError(400, error.message);
       }
+
+      
+      const {path: tempPath, originalname} = req.file;
+      const uploadDir = path.join(booksDir, originalname);
+
+      await fs.rename(tempPath, uploadDir);
+
+      const cover = path.join( 'books', originalname);
+      console.log(cover);
+
       const {_id: owner} = req.user;
-      const newContact = await Book.create({...req.body, owner});
+      const newContact = await Book.create({...req.body, owner, cover});
       res.status(201).json(newContact)
     } catch (error) {
       next(error);

@@ -32,6 +32,9 @@ const bookSchema = new Schema({
         // !Назва колекції з якої буде це id
         ref: 'user',
         required: true,
+    },
+    cover: {
+        type: String,
     }
     // !Другий об'єкт в схемі прибирає версію та встановлює дату додавання та оновлення
 }, {versionKey: false, timestamps: true})  

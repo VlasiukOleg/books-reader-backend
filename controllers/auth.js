@@ -6,6 +6,10 @@ const bcrypt = require('bcrypt');
 
 const jwt = require('jsonwebtoken')
 
+const gravatar = require('gravatar');
+const path = require('path');
+const fs = require('fs/promises')
+
 
 const {HttpError} = require('../helpers')
 
@@ -29,6 +33,10 @@ const loginSchema  = Joi.object({
     password: Joi.string().min(6).required(),
 })
 
+// const avatarSchema = Joi.object({
+//     avatar: Joi.string().required(),
+// })
+
 
 const register = async (req, res,next) => {
     try {
@@ -43,8 +51,10 @@ const register = async (req, res,next) => {
             }
         
         const hashPassword = await bcrypt.hash(password,10);
+        // !Повертється посилання на тимчасову аватарку
+        const avatarUrl = gravatar.url(email);
 
-        const newUser = await User.create({...req.body, password: hashPassword });
+        const newUser = await User.create({...req.body, password: hashPassword, avatarUrl});
         res.status(201).json({
             name: newUser.name,
             email: newUser.email,
@@ -105,10 +115,31 @@ const logout = async(req,res) => {
     })
 }
 
+const avatarsDir = path.join(__dirname, '../', 'public', 'avatars');
+console.log(avatarsDir)
+
+const updateAvatar = async(req,res,next) => {
+    try {
+        const {_id} = req.user;
+        const {path: tempUpload, originalname } = req.file;
+        const fileName = `${_id}_${originalname}`
+        const resultUpload = path.join(avatarsDir, fileName);
+        await fs.rename(tempUpload, resultUpload);
+        const avatarUrl = path.join('avatars', fileName);
+        await User.findByIdAndUpdate(_id, {avatarUrl});
+        res.json({
+            avatarUrl,
+        })
+    } catch (error) {
+        next(error);
+    }
+}
+
 
 module.exports = {
     register,
     login,
     getCurrent,
     logout,
+    updateAvatar,
 }
